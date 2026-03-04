@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    margin: 0;
+    overflow-x: hidden;
+  }
+}
+
+/* Subtle grain texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Magnetic button */
+.btn-magnetic {
+  @apply relative overflow-hidden transition-transform duration-300 cursor-pointer;
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.btn-magnetic:hover {
+  transform: scale(1.03);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #FBF8F3;
+}
+::-webkit-scrollbar-thumb {
+  background: #C41E3A;
+  border-radius: 3px;
+}
+
+/* Pulse glow for CTA */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(196, 30, 58, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(196, 30, 58, 0.6); }
+}
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out 3;
+}
+
+/* Auto-scroll marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+  width: max-content;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Typing cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Ken Burns zoom */
+@keyframes ken-burns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.04); }
+}
+.ken-burns {
+  animation: ken-burns 20s ease-out forwards;
+}
