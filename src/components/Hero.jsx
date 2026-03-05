@@ -90,7 +90,7 @@ export default function Hero({ content = null }) {
     >
       <div className="h-full flex flex-col lg:flex-row">
         {/* LEFT — Typography */}
-        <div className="flex-1 lg:flex-[55] flex flex-col justify-center px-6 md:px-10 lg:px-16 xl:px-20 pt-20 lg:pt-0">
+        <div className="flex-1 lg:flex-[40] flex flex-col justify-center px-6 md:px-10 lg:px-16 xl:px-20 pt-20 lg:pt-0">
           <p
             ref={taglineRef}
             className="font-body text-[10px] md:text-xs uppercase tracking-[0.35em] text-rose-gold/60 font-bold mb-4 md:mb-6"
@@ -129,7 +129,7 @@ export default function Hero({ content = null }) {
         </div>
 
         {/* RIGHT — 3 photo slots that rotate through all 6 photos */}
-        <div className="flex-1 lg:flex-[45] relative min-h-[40vh] lg:min-h-0">
+        <div className="flex-1 lg:flex-[60] relative min-h-[40vh] lg:min-h-0">
           <div className="absolute inset-0 flex gap-1.5 md:gap-2 p-2 lg:p-3">
             {slots.map((photoIdx, i) => {
               const photo = ALL_PHOTOS[photoIdx];

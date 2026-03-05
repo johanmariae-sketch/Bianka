@@ -48,7 +48,7 @@ export default function Navbar() {
       ref={navRef}
       className={`
         fixed top-0 left-0 right-0 z-50
-        flex items-center justify-center
+        flex items-center justify-between
         px-6 md:px-10 lg:px-16
         h-16 md:h-20
         transition-all duration-500 ease-out
@@ -59,10 +59,7 @@ export default function Navbar() {
         }
       `}
     >
-      {/* Left spacer for centering */}
-      <div className="flex-1" />
-
-      {/* Center: Logo as styled text */}
+      {/* Left: Logo */}
       <a
         ref={brandRef}
         href="#hero"
