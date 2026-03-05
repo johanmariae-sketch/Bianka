@@ -1,42 +1,25 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
-const PHOTOS = [
-  {
-    src: "/instagram/DQQfLnMkabd_1.jpg",
-    alt: "Celebrity makeup look 1",
-    rotate: "-2deg",
-    className: "w-[70%] md:w-[65%] top-[8%] left-[5%] z-10",
-    hoverX: -6,
-    hoverY: -4,
-  },
-  {
-    src: "/instagram/DQsqQakEav9_1.jpg",
-    alt: "Celebrity makeup look 2",
-    rotate: "3deg",
-    className: "w-[50%] md:w-[48%] top-[2%] right-[0%] z-20",
-    hoverX: 8,
-    hoverY: -6,
-  },
-  {
-    src: "/instagram/DR489ULEbGr_1.jpg",
-    alt: "Celebrity makeup look 3",
-    rotate: "-1deg",
-    className: "w-[40%] md:w-[38%] bottom-[8%] left-[10%] z-30",
-    hoverX: -4,
-    hoverY: 8,
-  },
+const SLIDES = [
+  { src: "/instagram/DRK277mEVoB_2.jpg", alt: "Tito El Bambino grooming" },
+  { src: "/instagram/DQKajYCEYEP_1.jpg", alt: "Halloween editorial makeup" },
+  { src: "/instagram/C2DvjGer15a_2.jpg", alt: "Makeup look" },
+  { src: "/instagram/DOZntMwEYwa.jpg", alt: "Bianka Beauty storytime" },
+  { src: "/instagram/DNtCxtM4iIG_1.jpg", alt: "Makeup portfolio" },
+  { src: "/instagram/C8t1ctBOCdD_2.jpg", alt: "Makeup look" },
 ];
 
 export default function Hero({ content = null }) {
   const sectionRef = useRef(null);
-  const textLinesRef = useRef([]);
-  const photosRef = useRef([]);
-  const collageRef = useRef(null);
-  const metaRef = useRef(null);
+  const textRef = useRef(null);
+  const slideTrackRef = useRef(null);
+  const taglineRef = useRef(null);
   const lineRef = useRef(null);
   const ctaRef = useRef(null);
-  const taglineRef = useRef(null);
+  const metaRef = useRef(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const intervalRef = useRef(null);
 
   const profile = content?.profile || {};
   const followers = profile.followers
@@ -44,7 +27,25 @@ export default function Hero({ content = null }) {
     : "5.8k";
   const postsCount = profile.postsCount || 355;
 
-  /* ── GSAP entrance animations ── */
+  /* Auto-rotate slides */
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % SLIDES.length);
+    }, 3000);
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  /* Animate slide change */
+  useEffect(() => {
+    if (!slideTrackRef.current) return;
+    gsap.to(slideTrackRef.current, {
+      x: `-${activeSlide * (100 / SLIDES.length)}%`,
+      duration: 0.8,
+      ease: "power3.out",
+    });
+  }, [activeSlide]);
+
+  /* GSAP entrance */
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -52,108 +53,47 @@ export default function Hero({ content = null }) {
         delay: 0.4,
       });
 
-      // Stagger text lines from left
-      tl.from(textLinesRef.current.filter(Boolean), {
-        x: -40,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.1,
-      });
+      tl.from(taglineRef.current, { opacity: 0, y: 12, duration: 0.7 });
 
-      // Tagline
       tl.from(
-        taglineRef.current,
-        { opacity: 0, y: 12, duration: 0.7 },
-        "-=0.5"
+        textRef.current,
+        { x: -40, opacity: 0, duration: 1 },
+        "-=0.3"
       );
 
-      // Horizontal rule
       tl.from(
         lineRef.current,
         { scaleX: 0, transformOrigin: "left", duration: 0.8 },
         "-=0.4"
       );
 
-      // CTA link
       tl.from(
         ctaRef.current,
         { opacity: 0, x: -20, duration: 0.6 },
         "-=0.4"
       );
 
-      // Meta text
       tl.from(
         metaRef.current,
         { opacity: 0, duration: 0.6 },
         "-=0.3"
-      );
-
-      // Photos scale in with stagger
-      tl.from(
-        photosRef.current.filter(Boolean),
-        {
-          scale: 0.9,
-          opacity: 0,
-          duration: 1,
-          stagger: 0.15,
-          ease: "power2.out",
-        },
-        "-=1.0"
       );
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
-  /* ── Photo parallax on hover ── */
-  useEffect(() => {
-    const collage = collageRef.current;
-    if (!collage) return;
-
-    const handleMove = (e) => {
-      const rect = collage.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-
-      photosRef.current.forEach((photo, i) => {
-        if (!photo) return;
-        const config = PHOTOS[i];
-        gsap.to(photo, {
-          x: x * config.hoverX * 6,
-          y: y * config.hoverY * 6,
-          duration: 0.8,
-          ease: "power2.out",
-        });
-      });
-    };
-
-    const handleLeave = () => {
-      photosRef.current.forEach((photo) => {
-        if (!photo) return;
-        gsap.to(photo, { x: 0, y: 0, duration: 0.6, ease: "power2.out" });
-      });
-    };
-
-    collage.addEventListener("mousemove", handleMove);
-    collage.addEventListener("mouseleave", handleLeave);
-
-    return () => {
-      collage.removeEventListener("mousemove", handleMove);
-      collage.removeEventListener("mouseleave", handleLeave);
-    };
-  }, []);
-
   const scrollTo = (href) => {
     document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  /* ── Text lines config ── */
-  const lines = [
-    { text: "Donde", italic: false, size: "text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem]", weight: "font-light" },
-    { text: "el arte", italic: true, size: "text-6xl sm:text-7xl md:text-8xl lg:text-[7rem]", weight: "font-bold", accent: true },
-    { text: "se vuelve", italic: false, size: "text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem]", weight: "font-light" },
-    { text: "belleza.", italic: true, size: "text-6xl sm:text-7xl md:text-8xl lg:text-[7rem]", weight: "font-black", accent: true },
-  ];
+  const goToSlide = (i) => {
+    setActiveSlide(i);
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % SLIDES.length);
+    }, 3000);
+  };
 
   return (
     <section
@@ -162,100 +102,101 @@ export default function Hero({ content = null }) {
       className="relative bg-silk overflow-hidden"
       style={{ height: "100dvh" }}
     >
-      <div className="h-full flex flex-col lg:flex-row">
-        {/* ════════════════════════════════════════════════
-            LEFT SIDE — Typography block
-            ════════════════════════════════════════════════ */}
-        <div className="flex-1 lg:flex-[55] flex flex-col justify-center px-6 md:px-10 lg:px-16 xl:px-20 pt-20 lg:pt-0">
+      <div className="h-full flex flex-col">
+        {/* TOP — Typography block */}
+        <div className="flex-shrink-0 px-6 md:px-10 lg:px-16 xl:px-20 pt-24 md:pt-28 lg:pt-32">
           {/* Mono tagline */}
           <p
             ref={taglineRef}
-            className="font-body text-[10px] md:text-xs uppercase tracking-[0.35em] text-rose-gold/60 font-bold mb-6 md:mb-8"
+            className="font-body text-[10px] md:text-xs uppercase tracking-[0.35em] text-rose-gold/60 font-bold mb-4 md:mb-6"
           >
             Makeup Academy &middot; Santo Domingo
           </p>
 
-          {/* Large stacked display text */}
-          <div className="space-y-0 leading-[0.92]">
-            {lines.map((line, i) => (
+          {/* 2-line display text */}
+          <div ref={textRef} className="leading-[0.90]">
+            <div className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[8rem] font-light text-espresso/70 tracking-tight italic leading-[0.90]">
+              Donde el Arte
+            </div>
+            <div className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[8rem] font-black text-espresso tracking-tight italic leading-[0.90]">
+              se vuelve belleza.
+            </div>
+          </div>
+
+          {/* Divider + CTA */}
+          <div className="mt-6 md:mt-8">
+            <div
+              ref={lineRef}
+              className="h-px bg-espresso/15 w-full max-w-xs mb-4"
+            />
+            <div className="flex items-center gap-8">
+              <a
+                ref={ctaRef}
+                href="#booking"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollTo("#booking");
+                }}
+                className="
+                  group inline-flex items-center gap-3
+                  font-body text-sm md:text-base text-rose-gold uppercase tracking-[0.2em] font-bold
+                  transition-colors duration-300 hover:text-rose-gold/80
+                "
+              >
+                <span>Reservar Cita</span>
+                <span className="inline-block transition-transform duration-300 group-hover:translate-x-1.5">
+                  &rarr;
+                </span>
+              </a>
+              <p
+                ref={metaRef}
+                className="font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-espresso/35"
+              >
+                {followers} seguidores &middot; +{postsCount} posts
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* BOTTOM — Photo slide carousel */}
+        <div className="flex-1 relative mt-6 md:mt-10 overflow-hidden">
+          {/* Slide track */}
+          <div
+            ref={slideTrackRef}
+            className="flex h-full will-change-transform"
+            style={{ width: `${SLIDES.length * 100}%` }}
+          >
+            {SLIDES.map((slide, i) => (
               <div
                 key={i}
-                ref={(el) => (textLinesRef.current[i] = el)}
-                className={`
-                  font-display ${line.size} ${line.weight || ""}
-                  ${line.accent ? "text-espresso" : "text-espresso/70"}
-                  ${line.italic ? "italic" : ""}
-                  leading-[0.92] tracking-tight
-                `}
+                className="h-full flex-shrink-0 px-1 md:px-2"
+                style={{ width: `${100 / SLIDES.length}%` }}
               >
-                {line.text}
+                <img
+                  src={slide.src}
+                  alt={slide.alt}
+                  className="w-full h-full object-cover rounded-t-2xl md:rounded-t-3xl"
+                  loading={i < 2 ? "eager" : "lazy"}
+                />
               </div>
             ))}
           </div>
 
-          {/* Divider + CTA */}
-          <div className="mt-8 md:mt-10">
-            <div
-              ref={lineRef}
-              className="h-px bg-espresso/15 w-full max-w-xs mb-6"
-            />
-            <a
-              ref={ctaRef}
-              href="#booking"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollTo("#booking");
-              }}
-              className="
-                group inline-flex items-center gap-3
-                font-body text-sm md:text-base text-rose-gold uppercase tracking-[0.2em] font-bold
-                transition-colors duration-300 hover:text-rose-gold/80
-              "
-            >
-              <span>Reservar Cita</span>
-              <span className="inline-block transition-transform duration-300 group-hover:translate-x-1.5">
-                &rarr;
-              </span>
-            </a>
-          </div>
-
-          {/* Stats in mono */}
-          <p
-            ref={metaRef}
-            className="mt-6 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-espresso/35"
-          >
-            {followers} seguidores &middot; +{postsCount} posts &middot; Santo
-            Domingo
-          </p>
-        </div>
-
-        {/* ════════════════════════════════════════════════
-            RIGHT SIDE — Asymmetric photo collage
-            ════════════════════════════════════════════════ */}
-        <div className="flex-1 lg:flex-[45] relative min-h-[40vh] lg:min-h-0">
-          <div
-            ref={collageRef}
-            className="relative w-full h-full"
-          >
-            {PHOTOS.map((photo, i) => (
-              <div
+          {/* Dot indicators */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+            {SLIDES.map((_, i) => (
+              <button
                 key={i}
-                ref={(el) => (photosRef.current[i] = el)}
-                className={`absolute ${photo.className} will-change-transform`}
-                style={{ transform: `rotate(${photo.rotate})` }}
-              >
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  className="
-                    w-full h-auto
-                    rounded-2xl
-                    object-cover
-                    shadow-[0_8px_40px_rgba(26,18,21,0.12)]
-                  "
-                  loading="eager"
-                />
-              </div>
+                onClick={() => goToSlide(i)}
+                className={`
+                  rounded-full transition-all duration-400
+                  ${i === activeSlide
+                    ? "w-6 h-1.5 bg-white"
+                    : "w-1.5 h-1.5 bg-white/40 hover:bg-white/60"
+                  }
+                `}
+                aria-label={`Slide ${i + 1}`}
+              />
             ))}
           </div>
         </div>

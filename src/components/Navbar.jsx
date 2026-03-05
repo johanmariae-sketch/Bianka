@@ -62,7 +62,7 @@ export default function Navbar() {
       {/* Left spacer for centering */}
       <div className="flex-1" />
 
-      {/* Center: BIANKA brand */}
+      {/* Center: Logo */}
       <a
         ref={brandRef}
         href="#hero"
@@ -70,9 +70,13 @@ export default function Navbar() {
           e.preventDefault();
           scrollTo("#hero");
         }}
-        className="font-display text-xl md:text-2xl tracking-[0.15em] text-espresso select-none uppercase font-bold"
+        className="select-none"
       >
-        Bianka
+        <img
+          src="/logo.jpg"
+          alt="Bianka Beauty"
+          className="h-10 md:h-12 w-auto object-contain"
+        />
       </a>
 
       {/* Right spacer */}
