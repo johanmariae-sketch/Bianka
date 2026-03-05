@@ -142,17 +142,18 @@ export default function Hero({ content = null }) {
                   {photo.video ? (
                     <video
                       src={photo.src}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-top"
                       autoPlay
                       loop
                       muted
                       playsInline
+                      webkit-playsinline=""
                     />
                   ) : (
                     <img
                       src={photo.src}
                       alt={photo.alt}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-top"
                       loading="eager"
                     />
                   )}

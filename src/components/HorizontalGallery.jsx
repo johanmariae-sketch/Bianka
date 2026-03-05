@@ -138,7 +138,10 @@ function PhotoCard({ post }) {
           loop
           muted
           playsInline
+          webkit-playsinline=""
+          preload="metadata"
           draggable={false}
+          onCanPlay={(e) => e.target.play().catch(() => {})}
         />
       ) : (
         <img
