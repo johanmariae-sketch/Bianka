@@ -62,7 +62,7 @@ export default function Navbar() {
       {/* Left spacer for centering */}
       <div className="flex-1" />
 
-      {/* Center: Logo */}
+      {/* Center: Logo as styled text */}
       <a
         ref={brandRef}
         href="#hero"
@@ -70,13 +70,14 @@ export default function Navbar() {
           e.preventDefault();
           scrollTo("#hero");
         }}
-        className="select-none"
+        className="select-none flex flex-col items-center"
       >
-        <img
-          src="/logo.jpg"
-          alt="Bianka Beauty"
-          className="h-10 md:h-12 w-auto object-contain"
-        />
+        <span className="font-display text-3xl md:text-4xl italic text-espresso tracking-[0.04em] leading-none">
+          bianka
+        </span>
+        <span className="font-body text-[7px] md:text-[8px] uppercase tracking-[0.45em] text-espresso/70 font-semibold mt-0.5">
+          beauty
+        </span>
       </a>
 
       {/* Right spacer */}
