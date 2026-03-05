@@ -148,6 +148,8 @@ export default function Hero({ content = null }) {
                       muted
                       playsInline
                       webkit-playsinline=""
+                      preload="metadata"
+                      onCanPlay={(e) => e.target.play().catch(() => {})}
                     />
                   ) : (
                     <img
