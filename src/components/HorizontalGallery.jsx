@@ -126,11 +126,27 @@ function PhotoCard({ post }) {
   const src = Array.isArray(post.images) ? post.images[0] : post.images;
   const likes = post.likes || 0;
   const hasVideo = post.video && (post.type === "reel" || post.type === "video");
+  const videoRef = useRef(null);
+
+  /* Force play on iOS — IntersectionObserver triggers play when visible */
+  useEffect(() => {
+    if (!hasVideo || !videoRef.current) return;
+    const vid = videoRef.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && vid.paused) vid.play().catch(() => {});
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(vid);
+    return () => observer.disconnect();
+  }, [hasVideo]);
 
   return (
     <div className="group relative flex-shrink-0 w-[220px] md:w-[280px] overflow-hidden rounded-2xl select-none">
       {hasVideo ? (
         <video
+          ref={videoRef}
           src={post.video}
           poster={src}
           className="w-full aspect-[3/4] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
@@ -139,9 +155,8 @@ function PhotoCard({ post }) {
           muted
           playsInline
           webkit-playsinline=""
-          preload="metadata"
+          preload="auto"
           draggable={false}
-          onCanPlay={(e) => e.target.play().catch(() => {})}
         />
       ) : (
         <img

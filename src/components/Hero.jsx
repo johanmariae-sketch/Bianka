@@ -50,7 +50,7 @@ export default function Hero({ content = null }) {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  /* Animate the changed slot */
+  /* Animate the changed slot + force-play any videos */
   useEffect(() => {
     const changedSlot = (slotToRotate + 2) % 3; // the one that just changed
     const el = slotsRef.current[changedSlot];
@@ -59,6 +59,11 @@ export default function Hero({ content = null }) {
       { opacity: 0, scale: 1.08 },
       { opacity: 1, scale: 1, duration: 0.7, ease: "power2.out" }
     );
+    /* Force-play all videos in the hero (iOS won't honor autoPlay on dynamic elements) */
+    slotsRef.current.forEach((slot) => {
+      const vid = slot?.querySelector("video");
+      if (vid && vid.paused) vid.play().catch(() => {});
+    });
   }, [slots]);
 
   /* GSAP entrance */
