@@ -125,29 +125,15 @@ export default function HorizontalGallery({ posts = [] }) {
 function PhotoCard({ post }) {
   const src = Array.isArray(post.images) ? post.images[0] : post.images;
   const likes = post.likes || 0;
-  const isVideo = post.type === "reel" || (post.video && !post.images?.length);
-
   return (
     <div className="group relative flex-shrink-0 w-[220px] md:w-[280px] overflow-hidden rounded-2xl select-none">
-      {isVideo && post.video ? (
-        <video
-          src={post.video}
-          className="w-full aspect-[3/4] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-          autoPlay
-          loop
-          muted
-          playsInline
-          draggable={false}
-        />
-      ) : (
-        <img
-          src={src}
-          alt={post.caption || "Bianka Beauty portfolio"}
-          loading="lazy"
-          className="w-full aspect-[3/4] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-          draggable={false}
-        />
-      )}
+      <img
+        src={src}
+        alt={post.caption || "Bianka Beauty portfolio"}
+        loading="lazy"
+        className="w-full aspect-[3/4] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+        draggable={false}
+      />
 
       {/* Likes pill — appears on hover */}
       {likes > 0 && (
