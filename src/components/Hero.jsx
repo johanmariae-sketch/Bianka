@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
-const SLIDES = [
+const ALL_PHOTOS = [
   { src: "/instagram/DRK277mEVoB_2.jpg", alt: "Tito El Bambino grooming" },
   { src: "/instagram/DQKajYCEYEP_1.jpg", alt: "Halloween editorial makeup" },
   { src: "/instagram/C2DvjGer15a_2.jpg", alt: "Makeup look" },
-  { src: "/instagram/DOZntMwEYwa.jpg", alt: "Bianka Beauty storytime" },
+  { src: "/instagram/DOZntMwEYwa.mp4", alt: "Bianka Beauty storytime", video: true },
   { src: "/instagram/DNtCxtM4iIG_1.jpg", alt: "Makeup portfolio" },
-  { src: "/instagram/C8t1ctBOCdD_2.jpg", alt: "Makeup look" },
+  { src: "/instagram/C8t1ctBOCdD_2.jpg", alt: "Makeup look 2" },
 ];
 
 export default function Hero({ content = null }) {
@@ -17,9 +17,15 @@ export default function Hero({ content = null }) {
   const lineRef = useRef(null);
   const ctaRef = useRef(null);
   const metaRef = useRef(null);
-  const slidesRef = useRef([]);
-  const [activeSlide, setActiveSlide] = useState(0);
+  const slotsRef = useRef([]);
   const intervalRef = useRef(null);
+
+  /* Which slot (0, 1, 2) to rotate next */
+  const [slotToRotate, setSlotToRotate] = useState(0);
+  /* Track which photo each slot shows — start with first 3 */
+  const [slots, setSlots] = useState([0, 1, 2]);
+  /* Next photo index to bring in */
+  const nextPhotoRef = useRef(3);
 
   const profile = content?.profile || {};
   const followers = profile.followers
@@ -27,26 +33,33 @@ export default function Hero({ content = null }) {
     : "5.8k";
   const postsCount = profile.postsCount || 355;
 
-  /* Auto-rotate slides */
+  /* Every 3s, rotate one slot to the next photo */
   useEffect(() => {
     intervalRef.current = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % SLIDES.length);
+      setSlots((prev) => {
+        const newSlots = [...prev];
+        const nextIdx = nextPhotoRef.current % ALL_PHOTOS.length;
+        setSlotToRotate((s) => {
+          newSlots[s] = nextIdx;
+          return (s + 1) % 3;
+        });
+        nextPhotoRef.current = nextIdx + 1;
+        return newSlots;
+      });
     }, 3000);
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  /* Animate slide change — crossfade */
+  /* Animate the changed slot */
   useEffect(() => {
-    slidesRef.current.forEach((el, i) => {
-      if (!el) return;
-      gsap.to(el, {
-        opacity: i === activeSlide ? 1 : 0,
-        scale: i === activeSlide ? 1 : 1.05,
-        duration: 0.8,
-        ease: "power2.out",
-      });
-    });
-  }, [activeSlide]);
+    const changedSlot = (slotToRotate + 2) % 3; // the one that just changed
+    const el = slotsRef.current[changedSlot];
+    if (!el) return;
+    gsap.fromTo(el,
+      { opacity: 0, scale: 1.08 },
+      { opacity: 1, scale: 1, duration: 0.7, ease: "power2.out" }
+    );
+  }, [slots]);
 
   /* GSAP entrance */
   useEffect(() => {
@@ -55,27 +68,17 @@ export default function Hero({ content = null }) {
         defaults: { ease: "power3.out" },
         delay: 0.4,
       });
-
       tl.from(taglineRef.current, { opacity: 0, y: 12, duration: 0.7 });
       tl.from(textRef.current, { x: -40, opacity: 0, duration: 1 }, "-=0.3");
       tl.from(lineRef.current, { scaleX: 0, transformOrigin: "left", duration: 0.8 }, "-=0.4");
       tl.from(ctaRef.current, { opacity: 0, x: -20, duration: 0.6 }, "-=0.4");
       tl.from(metaRef.current, { opacity: 0, duration: 0.6 }, "-=0.3");
     }, sectionRef);
-
     return () => ctx.revert();
   }, []);
 
   const scrollTo = (href) => {
     document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const goToSlide = (i) => {
-    setActiveSlide(i);
-    clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 3000);
   };
 
   return (
@@ -86,7 +89,7 @@ export default function Hero({ content = null }) {
       style={{ height: "100dvh" }}
     >
       <div className="h-full flex flex-col lg:flex-row">
-        {/* LEFT SIDE — Typography */}
+        {/* LEFT — Typography */}
         <div className="flex-1 lg:flex-[55] flex flex-col justify-center px-6 md:px-10 lg:px-16 xl:px-20 pt-20 lg:pt-0">
           <p
             ref={taglineRef}
@@ -125,40 +128,37 @@ export default function Hero({ content = null }) {
           </p>
         </div>
 
-        {/* RIGHT SIDE — Photo slideshow */}
+        {/* RIGHT — 3 photo slots that rotate through all 6 photos */}
         <div className="flex-1 lg:flex-[45] relative min-h-[40vh] lg:min-h-0">
-          <div className="relative w-full h-full overflow-hidden">
-            {SLIDES.map((slide, i) => (
-              <div
-                key={i}
-                ref={(el) => (slidesRef.current[i] = el)}
-                className="absolute inset-0"
-                style={{ opacity: i === 0 ? 1 : 0 }}
-              >
-                <img
-                  src={slide.src}
-                  alt={slide.alt}
-                  className="w-full h-full object-cover"
-                  loading={i < 2 ? "eager" : "lazy"}
-                />
-              </div>
-            ))}
-
-            {/* Dot indicators */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
-              {SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => goToSlide(i)}
-                  className={`rounded-full transition-all duration-400 ${
-                    i === activeSlide
-                      ? "w-6 h-1.5 bg-white"
-                      : "w-1.5 h-1.5 bg-white/40 hover:bg-white/60"
-                  }`}
-                  aria-label={`Slide ${i + 1}`}
-                />
-              ))}
-            </div>
+          <div className="absolute inset-0 flex gap-1.5 md:gap-2 p-2 lg:p-3">
+            {slots.map((photoIdx, i) => {
+              const photo = ALL_PHOTOS[photoIdx];
+              return (
+                <div
+                  key={`slot-${i}`}
+                  ref={(el) => (slotsRef.current[i] = el)}
+                  className="flex-1 overflow-hidden rounded-xl lg:rounded-2xl"
+                >
+                  {photo.video ? (
+                    <video
+                      src={photo.src}
+                      className="w-full h-full object-cover"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    />
+                  ) : (
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      className="w-full h-full object-cover"
+                      loading="eager"
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

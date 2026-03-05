@@ -10,7 +10,6 @@ const celebrities = [
   { name: "Jhayco", context: "Estilismo audiovisual", image: "/instagram/DQ3D7dLkReK_1.jpg" },
   { name: "De La Ghetto", context: "GZ Casa Alofoke Sessions", image: "/instagram/DQ_AGMRjmA7_1.jpg" },
   { name: "Tito El Bambino", context: "Men Grooming eventos", image: "/instagram/DRK277mEVoB_1.jpg" },
-  { name: "Shadow Blow", context: "MUA videoclip 'Zaza'", image: "/instagram/DR489ULEbGr_1.jpg" },
 ];
 
 const brands =

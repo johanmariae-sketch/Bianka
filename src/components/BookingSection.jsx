@@ -77,7 +77,7 @@ export default function BookingSection() {
   const photos = [
     { src: "/instagram/DQQfLnMkabd_1.jpg", rotate: "-1.5deg" },
     { src: "/instagram/DQsqQakEav9_1.jpg", rotate: "1deg" },
-    { src: "/instagram/DR489ULEbGr_1.jpg", rotate: "-0.5deg" },
+    { src: "/instagram/DRK277mEVoB_1.jpg", rotate: "-0.5deg" },
   ];
 
   return (
